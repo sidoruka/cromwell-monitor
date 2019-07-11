@@ -296,7 +296,7 @@ signal(SIGTERM, signal_handler)
 reset()
 while running:
   measure()
-  if not running or (time() - last_time) >= REPORT_TIME_SEC:
+  if (time() - last_time) >= REPORT_TIME_SEC:
     report()
     reset()
 exit(0)
