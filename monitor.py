@@ -90,13 +90,16 @@ def get_time_series(metric_descriptor, value):
   return series
 
 def report():
-  create_time_series([
-    get_time_series(CPU_UTILIZATION_METRIC, { 'double_value': ps.cpu_percent() }),
-    get_time_series(MEMORY_UTILIZATION_METRIC, { 'double_value': memory_used / MEMORY_SIZE * 100 }),
-    get_time_series(DISK_UTILIZATION_METRIC, { 'double_value': disk_used / DISK_SIZE * 100 }),
-    get_time_series(DISK_READS_METRIC, { 'double_value': (disk_io('read_count') - disk_reads) / report_time }),
-    get_time_series(DISK_WRITES_METRIC, { 'double_value': (disk_io('write_count') - disk_writes) / report_time }),
-  ])
+  try:
+    create_time_series([
+      get_time_series(CPU_UTILIZATION_METRIC, { 'double_value': ps.cpu_percent() }),
+      get_time_series(MEMORY_UTILIZATION_METRIC, { 'double_value': memory_used / MEMORY_SIZE * 100 }),
+      get_time_series(DISK_UTILIZATION_METRIC, { 'double_value': disk_used / DISK_SIZE * 100 }),
+      get_time_series(DISK_READS_METRIC, { 'double_value': (disk_io('read_count') - disk_reads) / report_time }),
+      get_time_series(DISK_WRITES_METRIC, { 'double_value': (disk_io('write_count') - disk_writes) / report_time }),
+    ])
+  except Exception as e:
+    print(e)
 
 ### Define constants
 
