@@ -206,8 +206,11 @@ signal(SIGTERM, signal_handler)
 
 reset()
 while running:
-  measure()
-  if report_time >= REPORT_TIME_SEC:
-    report()
-    reset()
+  try:
+    measure()
+    if report_time >= REPORT_TIME_SEC:
+        report()
+        reset()
+  except Exception as e:
+    print(e)
 exit(0)
