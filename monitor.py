@@ -99,7 +99,6 @@ def report():
   ])
 
 ### Define constants
-
 # Cromwell variables passed to the container
 # through environmental variables
 WORKFLOW_ID = environ['WORKFLOW_ID']
@@ -108,83 +107,86 @@ TASK_CALL_INDEX = environ['TASK_CALL_INDEX']
 TASK_CALL_ATTEMPT = environ['TASK_CALL_ATTEMPT']
 DISK_MOUNTS = environ['DISK_MOUNTS'].split()
 
-# GCP instance name, zone and project
-# from instance introspection API
-INSTANCE = get_metadata('name')
-_, PROJECT, _, ZONE = get_metadata('zone').split('/')
+try:
+  # GCP instance name, zone and project
+  # from instance introspection API
+  INSTANCE = get_metadata('name')
+  _, PROJECT, _, ZONE = get_metadata('zone').split('/')
 
-client = MetricServiceClient()
-PROJECT_NAME = client.project_path(PROJECT)
+  client = MetricServiceClient()
+  PROJECT_NAME = client.project_path(PROJECT)
 
-METRIC_ROOT = 'wdl_task'
+  METRIC_ROOT = 'wdl_task'
 
-MEASUREMENT_TIME_SEC = 1
-REPORT_TIME_SEC = 60
+  MEASUREMENT_TIME_SEC = 1
+  REPORT_TIME_SEC = 60
 
-LABEL_DESCRIPTORS = [
-  LabelDescriptor(
-    key='workflow_id',
-    description='Cromwell workflow ID',
-  ),
-  LabelDescriptor(
-    key='task_call_name',
-    description='Cromwell task call name',
-  ),
-  LabelDescriptor(
-    key='task_call_index',
-    description='Cromwell task call index',
-  ),
-  LabelDescriptor(
-    key='task_call_attempt',
-    description='Cromwell task call attempt',
-  ),
-  LabelDescriptor(
-    key='cpu_count',
-    description='Number of virtual cores',
-  ),
-  LabelDescriptor(
-    key='mem_size',
-    description='Total memory size, GB',
-  ),
-  LabelDescriptor(
-    key='disk_size',
-    description='Total disk size, GB',
-  ),
-]
+  LABEL_DESCRIPTORS = [
+    LabelDescriptor(
+      key='workflow_id',
+      description='Cromwell workflow ID',
+    ),
+    LabelDescriptor(
+      key='task_call_name',
+      description='Cromwell task call name',
+    ),
+    LabelDescriptor(
+      key='task_call_index',
+      description='Cromwell task call index',
+    ),
+    LabelDescriptor(
+      key='task_call_attempt',
+      description='Cromwell task call attempt',
+    ),
+    LabelDescriptor(
+      key='cpu_count',
+      description='Number of virtual cores',
+    ),
+    LabelDescriptor(
+      key='mem_size',
+      description='Total memory size, GB',
+    ),
+    LabelDescriptor(
+      key='disk_size',
+      description='Total disk size, GB',
+    ),
+  ]
 
-CPU_COUNT = ps.cpu_count()
-CPU_COUNT_LABEL = str(CPU_COUNT)
+  CPU_COUNT = ps.cpu_count()
+  CPU_COUNT_LABEL = str(CPU_COUNT)
 
-MEMORY_SIZE = mem_usage('total')
-MEMORY_SIZE_LABEL = format_gb(MEMORY_SIZE)
+  MEMORY_SIZE = mem_usage('total')
+  MEMORY_SIZE_LABEL = format_gb(MEMORY_SIZE)
 
-DISK_SIZE = disk_usage('total')
-DISK_SIZE_LABEL = format_gb(DISK_SIZE)
+  DISK_SIZE = disk_usage('total')
+  DISK_SIZE_LABEL = format_gb(DISK_SIZE)
 
-CPU_UTILIZATION_METRIC = get_metric(
-  'cpu_utilization', 'DOUBLE', '%',
-  '% of CPU utilized in a Cromwell task call',
-)
+  CPU_UTILIZATION_METRIC = get_metric(
+    'cpu_utilization', 'DOUBLE', '%',
+    '% of CPU utilized in a Cromwell task call',
+  )
 
-MEMORY_UTILIZATION_METRIC = get_metric(
-  'mem_utilization', 'DOUBLE', '%',
-  '% of memory utilized in a Cromwell task call',
-)
+  MEMORY_UTILIZATION_METRIC = get_metric(
+    'mem_utilization', 'DOUBLE', '%',
+    '% of memory utilized in a Cromwell task call',
+  )
 
-DISK_UTILIZATION_METRIC = get_metric(
-  'disk_utilization', 'DOUBLE', '%',
-  '% of disk utilized in a Cromwell task call',
-)
+  DISK_UTILIZATION_METRIC = get_metric(
+    'disk_utilization', 'DOUBLE', '%',
+    '% of disk utilized in a Cromwell task call',
+  )
 
-DISK_READS_METRIC = get_metric(
-  'disk_reads', 'DOUBLE', '{reads}/s',
-  'Disk read IOPS in a Cromwell task call',
-)
+  DISK_READS_METRIC = get_metric(
+    'disk_reads', 'DOUBLE', '{reads}/s',
+    'Disk read IOPS in a Cromwell task call',
+  )
 
-DISK_WRITES_METRIC = get_metric(
-  'disk_writes', 'DOUBLE', '{writes}/s',
-  'Disk write IOPS in a Cromwell task call',
-)
+  DISK_WRITES_METRIC = get_metric(
+    'disk_writes', 'DOUBLE', '{writes}/s',
+    'Disk write IOPS in a Cromwell task call',
+  )
+except Exception as e:
+  print(e)
 
 ### Detect container termination
 
